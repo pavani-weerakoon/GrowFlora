@@ -36,7 +36,7 @@ parser = distributed_utils.wrap_arg_parser(parser)
 
 train_group = parser.add_argument_group('Training settings')
 
-train_group.add_argument('--epochs', type = int, default = 20, help = 'number of epochs')
+train_group.add_argument('--epochs', type = int, default = 100, help = 'number of epochs')
 
 train_group.add_argument('--batch_size', type = int, default = 8, help = 'batch size')
 
