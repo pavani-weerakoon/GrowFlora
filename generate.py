@@ -123,9 +123,21 @@ dalle.load_state_dict(weights)
 
 image_size = vae.image_size
 
+# texts = args.text.split('|')
 texts = args.text.split('|')
+print("test",texts)
+sinhalaLangHandeling= {
+  'රන්': 'කහ',
+  'දුබුරු': 'රතු'
+   }
 
-for j, text in tqdm(enumerate(texts)):
+for j, text in tqdm(enumerate(texts)):  
+    print("text",j,text)
+    for key in sinhalaLangHandeling:
+      print(key)
+      if key in text:
+        text = text.replace(key, sinhalaLangHandeling[key])
+        print(text)
     if args.gentxt:
         text_tokens, gen_texts = dalle.generate_texts(tokenizer, text=text, filter_thres = args.top_k)
         text = gen_texts[0]
@@ -135,6 +147,17 @@ for j, text in tqdm(enumerate(texts)):
     text_tokens = repeat(text_tokens, '() n -> b n', b = args.num_images)
 
     outputs = []
+
+# for j, text in tqdm(enumerate(texts)):
+#     if args.gentxt:
+#         text_tokens, gen_texts = dalle.generate_texts(tokenizer, text=text, filter_thres = args.top_k)
+#         text = gen_texts[0]
+#     else:
+#         text_tokens = tokenizer.tokenize([text], dalle.text_seq_len).cuda()
+
+#     text_tokens = repeat(text_tokens, '() n -> b n', b = args.num_images)
+
+#     outputs = []
 
     for text_chunk in tqdm(text_tokens.split(args.batch_size), desc = f'generating images for - {text}'):
         output = dalle.generate_images(text_chunk, filter_thres = args.top_k)
@@ -154,24 +177,24 @@ for j, text in tqdm(enumerate(texts)):
             f.write(file_name)
 
 
-    # # Set up image preprocessing
-    # image_transform = transforms.Compose([
-    #     transforms.Resize((224, 224)),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-    # ])
+     # Load the image
+    image = cv2.imread(str(outputs_dir)+"/0.png")
+    #
+    # Determine the new dimensions. In this case, we are doubling the size
+    new_width = image.shape[1] * 2
+    new_height = image.shape[0] * 2
 
-    # # # Generate images with DALLE
-    # # captions = ['a red rose in a vase', 'a white cat sitting on a couch']
-    # generated_images = outputs 
+    # Resize the image
+    image = cv2.resize(image, (new_width, new_height), interpolation = cv2.INTER_CUBIC)
+    #
+  
+    # Create a sharpening kernel, it must equal to one
+    kernel = np.array([[0, -1, 0], 
+                   [-1, 5,-1], 
+                   [0, -1, 0]])
 
-    # # Preprocess generated images
-    # preprocessed_images = []
-    # for image in generated_images:
-    #     preprocessed_image = image_transform(image)
-    #     preprocessed_images.append(preprocessed_image)
-    # preprocessed_images = torch.stack(preprocessed_images)
+    # Apply the sharpening kernel to the blurred image using filter2D
+    sharpened = cv2.filter2D(image, -1, kernel)
 
-    # # Calculate R-precision
-    # r_precision = inception_score(preprocessed_images, captions)
-    # print('R-precision:', r_precision)
+    # Save the output
+    cv2.imwrite(str(outputs_dir)+"/1.png", sharpened)
