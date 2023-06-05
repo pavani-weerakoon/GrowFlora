@@ -99,7 +99,7 @@ train_group = parser.add_argument_group('Training settings')
 
 train_group.add_argument('--flops_profiler', dest = 'flops_profiler', action='store_true', help = 'Exits after printing detailed flops/runtime analysis of forward/backward')
 
-train_group.add_argument('--epochs', default = 55, type = int, help = 'Number of epochs')
+train_group.add_argument('--epochs', default = 100, type = int, help = 'Number of epochs')
 
 train_group.add_argument('--save_every_n_steps', default = 1000, type = int, help = 'Save a checkpoint every n steps')
 
